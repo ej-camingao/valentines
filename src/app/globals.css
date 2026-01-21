@@ -18,12 +18,10 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at 20% 20%, rgba(255, 182, 193, 0.3), transparent 35%),
-    radial-gradient(circle at 80% 10%, rgba(255, 105, 180, 0.28), transparent 30%),
-    linear-gradient(135deg, #2b0f2f 0%, #401036 40%, #2f0a23 100%);
   color: #fef7ff;
   font-family: var(--font-body), system-ui, -apple-system, sans-serif;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 main {
@@ -33,6 +31,7 @@ main {
   align-items: center;
   justify-content: center;
   padding: clamp(1.5rem, 3vw, 3rem);
+  transition: background 1s ease;
 }
 
 a {
@@ -143,7 +142,7 @@ a {
   background: radial-gradient(circle at 30% 30%, #ffd1f3 0%, #ff8fc7 45%, #ff5fa3 100%);
   transform: rotate(-45deg);
   opacity: 0.8;
-  animation: float 10s infinite ease-in-out;
+  animation: float 14s infinite ease-in-out;
 }
 
 .heart::before,
@@ -304,6 +303,25 @@ a {
   margin-top: 0.5rem;
   font-size: 0.9rem;
   color: #ffd8f5;
+}
+
+.audio-controls {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffe5f6;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.audio-controls:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 @media (max-width: 700px) {

@@ -25,6 +25,12 @@ const playfulMessages = [
   "Destiny prefers \u2018Yes\u2019"
 ];
 
+const backgroundOptions = [
+  "radial-gradient(circle at 20% 20%, rgba(255, 182, 193, 0.3), transparent 35%), radial-gradient(circle at 80% 10%, rgba(255, 105, 180, 0.28), transparent 30%), linear-gradient(135deg, #2b0f2f 0%, #401036 40%, #2f0a23 100%)",
+  "radial-gradient(circle at 15% 30%, rgba(255, 204, 229, 0.35), transparent 32%), radial-gradient(circle at 75% 20%, rgba(255, 150, 200, 0.32), transparent 30%), linear-gradient(135deg, #2a0d26 0%, #3a1030 45%, #2c0b22 100%)",
+  "radial-gradient(circle at 25% 25%, rgba(255, 180, 210, 0.32), transparent 35%), radial-gradient(circle at 70% 25%, rgba(255, 130, 190, 0.3), transparent 28%), linear-gradient(135deg, #34102f 0%, #45113a 40%, #320c27 100%)"
+];
+
 const targetDate = () => {
   const now = new Date();
   const year = now.getMonth() > 1 || (now.getMonth() === 1 && now.getDate() > 13)
@@ -100,6 +106,8 @@ export default function Home() {
     calculateTimeLeft(targetDate())
   );
   const [audioHint, setAudioHint] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [bgIndex, setBgIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const countdownTarget = useMemo(() => targetDate(), []);
@@ -110,9 +118,11 @@ export default function Home() {
       audio.volume = 0.35;
       audio
         .play()
-        .catch(() =>
-          setAudioHint("If you don't hear music, tap to allow autoplay.")
-        );
+        .then(() => setIsPlaying(true))
+        .catch(() => {
+          setIsPlaying(false);
+          setAudioHint("If you don't hear music, tap to allow autoplay.");
+        });
     }
   }, []);
 
@@ -122,6 +132,13 @@ export default function Home() {
     }, 1000);
     return () => clearInterval(interval);
   }, [countdownTarget]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBgIndex((prev) => (prev + 1) % backgroundOptions.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleNoHover = () => {
     setNoHoverCount((prev) => {
@@ -136,6 +153,23 @@ export default function Home() {
     const index = (noClickAttempts + 1) % playfulMessages.length;
     setMessage(playfulMessages[index]);
     setNoPosition(generateNoPosition(noHoverCount + noClickAttempts + 1));
+  };
+
+  const handleToggleAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused) {
+      audio
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+          setAudioHint(null);
+        })
+        .catch(() => setAudioHint("Tap again to allow music to play."));
+    } else {
+      audio.pause();
+      setIsPlaying(false);
+    }
   };
 
   const yesScale = noClickAttempts >= 4 ? 1.08 : 1;
@@ -242,7 +276,7 @@ export default function Home() {
   );
 
   return (
-    <main>
+    <main style={{ background: backgroundOptions[bgIndex] }}>
       <HeartField count={18} />
       <audio
         ref={audioRef}
@@ -252,6 +286,11 @@ export default function Home() {
         playsInline
         aria-label="Background romantic music"
       />
+      <div style={{ position: "fixed", bottom: 16, left: 16, zIndex: 10 }}>
+        <button type="button" className="audio-controls" onClick={handleToggleAudio}>
+          {isPlaying ? "Pause music" : "Play music"}
+        </button>
+      </div>
       {accepted ? renderReveal() : renderLanding()}
     </main>
   );
